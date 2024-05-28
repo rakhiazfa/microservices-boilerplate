@@ -13,16 +13,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Role {
-  id          String    @id @default(uuid())
-  name        String    @unique
-  users       User[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  @@map("roles")
-}
-
 model User {
   id          String    @id @default(uuid())
   name        String
@@ -35,4 +25,23 @@ model User {
   updatedAt   DateTime  @updatedAt
 
   @@map("users")
+}
+
+model Role {
+  id            String    @id @default(uuid())
+  name          String    @unique
+  users         User[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("roles")
+}
+
+model AccessRight {
+  id          String    @id @default(uuid())
+  name        String    @unique
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("access_rights")
 }
