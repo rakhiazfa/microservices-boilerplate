@@ -57,4 +57,5 @@ model AccessRightsOnRoles {
   assignedBy    String
 
   @@id([roleId, accessRightId])
+  @@map("access_rights_on_roles")
 }
