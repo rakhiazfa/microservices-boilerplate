@@ -31,6 +31,7 @@ model Role {
   id            String    @id @default(uuid())
   name          String    @unique
   users         User[]
+  accessRights  AccessRightsOnRoles[]
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -40,8 +41,20 @@ model Role {
 model AccessRight {
   id          String    @id @default(uuid())
   name        String    @unique
+  roles       AccessRightsOnRoles[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
   @@map("access_rights")
+}
+
+model AccessRightsOnRoles {
+  role          Role     @relation(fields: [roleId], references: [id])
+  roleId        String
+  accessRight   AccessRight @relation(fields: [accessRightId], references: [id])
+  accessRightId String
+  assignedAt    DateTime @default(now())
+  assignedBy    String
+
+  @@id([roleId, accessRightId])
 }
