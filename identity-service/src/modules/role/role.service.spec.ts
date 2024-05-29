@@ -20,7 +20,7 @@ const prismaMock = {
 };
 
 describe('RoleService', () => {
-    let roleService: RoleService;
+    let service: RoleService;
 
     beforeEach(async () => {
         const moduleRef = await Test.createTestingModule({
@@ -33,7 +33,7 @@ describe('RoleService', () => {
             ],
         }).compile();
 
-        roleService = moduleRef.get<RoleService>(RoleService);
+        service = moduleRef.get<RoleService>(RoleService);
 
         prismaMock.role.findMany.mockClear();
         prismaMock.role.findUnique.mockClear();
@@ -43,7 +43,7 @@ describe('RoleService', () => {
     });
 
     it('should be defined', () => {
-        expect(roleService).toBeDefined();
+        expect(service).toBeDefined();
     });
 
     describe('findAll', () => {
@@ -59,7 +59,7 @@ describe('RoleService', () => {
 
             prismaMock.role.findMany.mockResolvedValue(roles);
 
-            await expect(roleService.findAll()).resolves.toBe(roles);
+            await expect(service.findAll()).resolves.toBe(roles);
         });
     });
 
@@ -77,7 +77,7 @@ describe('RoleService', () => {
 
             prismaMock.role.create.mockResolvedValue(role);
 
-            await expect(roleService.create(createRoleDto)).resolves.toBe(role);
+            await expect(service.create(createRoleDto)).resolves.toBe(role);
         });
 
         it('should throw PrismaClientKnownRequestError if createRoleDto is empty', async () => {
@@ -97,7 +97,7 @@ describe('RoleService', () => {
 
             const createRoleDto = {} as CreateRoleDto;
 
-            await expect(roleService.create(createRoleDto)).rejects.toThrow(
+            await expect(service.create(createRoleDto)).rejects.toThrow(
                 PrismaClientKnownRequestError,
             );
         });
@@ -109,7 +109,7 @@ describe('RoleService', () => {
                 name: faker.person.jobTitle(),
             };
 
-            await expect(roleService.create(createRoleDto)).rejects.toThrow(
+            await expect(service.create(createRoleDto)).rejects.toThrow(
                 BadRequestException,
             );
         });
@@ -126,13 +126,13 @@ describe('RoleService', () => {
 
             prismaMock.role.findUnique.mockResolvedValue(role);
 
-            await expect(roleService.findById(role.id)).resolves.toBe(role);
+            await expect(service.findById(role.id)).resolves.toBe(role);
         });
 
         it('should throw NotFoundException if role not exists', async () => {
             prismaMock.role.findUnique.mockResolvedValue(null);
 
-            await expect(roleService.findById(uuidv4())).rejects.toThrow(
+            await expect(service.findById(uuidv4())).rejects.toThrow(
                 NotFoundException,
             );
         });
@@ -163,7 +163,7 @@ describe('RoleService', () => {
             });
 
             await expect(
-                roleService.update(role.id, updateRoleDto),
+                service.update(role.id, updateRoleDto),
             ).resolves.toStrictEqual({
                 ...role,
                 name: updateRoleDto.name,
@@ -200,7 +200,7 @@ describe('RoleService', () => {
             });
 
             await expect(
-                roleService.update(role.id, updateRoleDto),
+                service.update(role.id, updateRoleDto),
             ).rejects.toThrow(PrismaClientKnownRequestError);
         });
 
@@ -218,7 +218,7 @@ describe('RoleService', () => {
             prismaMock.role.findUnique.mockResolvedValue(null);
 
             await expect(
-                roleService.update(role.id, updateRoleDto),
+                service.update(role.id, updateRoleDto),
             ).rejects.toThrow(NotFoundException);
         });
     });
@@ -238,9 +238,9 @@ describe('RoleService', () => {
                 return role;
             });
 
-            await expect(roleService.findById(role.id)).resolves.toBe(role);
-            await expect(roleService.remove(role.id)).resolves.toBe(role);
-            await expect(roleService.findById(role.id)).rejects.toThrow(
+            await expect(service.findById(role.id)).resolves.toBe(role);
+            await expect(service.remove(role.id)).resolves.toBe(role);
+            await expect(service.findById(role.id)).rejects.toThrow(
                 NotFoundException,
             );
         });
@@ -248,7 +248,7 @@ describe('RoleService', () => {
         it('should throw NotFoundException if role not exists', async () => {
             prismaMock.role.findUnique.mockResolvedValue(null);
 
-            await expect(roleService.remove(uuidv4())).rejects.toThrow(
+            await expect(service.remove(uuidv4())).rejects.toThrow(
                 NotFoundException,
             );
         });
