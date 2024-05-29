@@ -21,7 +21,7 @@ const prismaMock = {
 };
 
 describe('RoleController', () => {
-    let roleController: RoleController;
+    let controller: RoleController;
 
     beforeEach(async () => {
         const moduleRef = await Test.createTestingModule({
@@ -35,7 +35,7 @@ describe('RoleController', () => {
             ],
         }).compile();
 
-        roleController = moduleRef.get<RoleController>(RoleController);
+        controller = moduleRef.get<RoleController>(RoleController);
 
         prismaMock.role.findMany.mockClear();
         prismaMock.role.findUnique.mockClear();
@@ -45,7 +45,7 @@ describe('RoleController', () => {
     });
 
     it('should be defined', () => {
-        expect(roleController).toBeDefined();
+        expect(controller).toBeDefined();
     });
 
     describe('findAll', () => {
@@ -61,8 +61,8 @@ describe('RoleController', () => {
 
             prismaMock.role.findMany.mockResolvedValue(roles);
 
-            await expect(roleController.findAll()).resolves.toStrictEqual({
-                roles: roles,
+            await expect(controller.findAll()).resolves.toStrictEqual({
+                roles,
             });
         });
     });
@@ -82,7 +82,7 @@ describe('RoleController', () => {
             prismaMock.role.create.mockResolvedValue(role);
 
             await expect(
-                roleController.create(createRoleDto),
+                controller.create(createRoleDto),
             ).resolves.toStrictEqual({
                 message: 'Successfully created a new role',
                 createdRole: role,
@@ -106,7 +106,7 @@ describe('RoleController', () => {
 
             const createRoleDto = {} as CreateRoleDto;
 
-            await expect(roleController.create(createRoleDto)).rejects.toThrow(
+            await expect(controller.create(createRoleDto)).rejects.toThrow(
                 PrismaClientKnownRequestError,
             );
         });
@@ -118,7 +118,7 @@ describe('RoleController', () => {
                 name: faker.person.jobTitle(),
             };
 
-            await expect(roleController.create(createRoleDto)).rejects.toThrow(
+            await expect(controller.create(createRoleDto)).rejects.toThrow(
                 BadRequestException,
             );
         });
@@ -135,9 +135,7 @@ describe('RoleController', () => {
 
             prismaMock.role.findUnique.mockResolvedValue(role);
 
-            await expect(
-                roleController.findById(role.id),
-            ).resolves.toStrictEqual({
+            await expect(controller.findById(role.id)).resolves.toStrictEqual({
                 role: role,
             });
         });
@@ -145,7 +143,7 @@ describe('RoleController', () => {
         it('should throw NotFoundException if role not exists', async () => {
             prismaMock.role.findUnique.mockResolvedValue(null);
 
-            await expect(roleController.findById(uuidv4())).rejects.toThrow(
+            await expect(controller.findById(uuidv4())).rejects.toThrow(
                 NotFoundException,
             );
         });
@@ -176,7 +174,7 @@ describe('RoleController', () => {
             });
 
             await expect(
-                roleController.update(role.id, updateRoleDto),
+                controller.update(role.id, updateRoleDto),
             ).resolves.toStrictEqual({
                 message: 'Successfully updated role',
                 updatedRole: {
@@ -216,7 +214,7 @@ describe('RoleController', () => {
             });
 
             await expect(
-                roleController.update(role.id, updateRoleDto),
+                controller.update(role.id, updateRoleDto),
             ).rejects.toThrow(PrismaClientKnownRequestError);
         });
 
@@ -234,7 +232,7 @@ describe('RoleController', () => {
             prismaMock.role.findUnique.mockResolvedValue(null);
 
             await expect(
-                roleController.update(role.id, updateRoleDto),
+                controller.update(role.id, updateRoleDto),
             ).rejects.toThrow(NotFoundException);
         });
     });
@@ -254,18 +252,14 @@ describe('RoleController', () => {
                 return role;
             });
 
-            await expect(
-                roleController.findById(role.id),
-            ).resolves.toStrictEqual({
+            await expect(controller.findById(role.id)).resolves.toStrictEqual({
                 role,
             });
-            await expect(roleController.remove(role.id)).resolves.toStrictEqual(
-                {
-                    message: 'Successfully deleted role',
-                    deletedRole: role,
-                },
-            );
-            await expect(roleController.findById(role.id)).rejects.toThrow(
+            await expect(controller.remove(role.id)).resolves.toStrictEqual({
+                message: 'Successfully deleted role',
+                deletedRole: role,
+            });
+            await expect(controller.findById(role.id)).rejects.toThrow(
                 NotFoundException,
             );
         });
@@ -273,7 +267,7 @@ describe('RoleController', () => {
         it('should throw NotFoundException if role not exists', async () => {
             prismaMock.role.findUnique.mockResolvedValue(null);
 
-            await expect(roleController.remove(uuidv4())).rejects.toThrow(
+            await expect(controller.remove(uuidv4())).rejects.toThrow(
                 NotFoundException,
             );
         });
