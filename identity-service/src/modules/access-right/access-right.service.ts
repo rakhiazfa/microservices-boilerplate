@@ -1,26 +1,138 @@
-import { Injectable } from '@nestjs/common';
+import {
+    BadRequestException,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
 import { CreateAccessRightDto } from './dto/create-access-right.dto';
 import { UpdateAccessRightDto } from './dto/update-access-right.dto';
+import { PrismaService } from '@/providers/prisma/prisma.service';
+import { AccessRight } from '@prisma/client';
 
 @Injectable()
 export class AccessRightService {
-  create(createAccessRightDto: CreateAccessRightDto) {
-    return 'This action adds a new accessRight';
-  }
+    constructor(private readonly prismaService: PrismaService) {}
 
-  findAll() {
-    return `This action returns all accessRight`;
-  }
+    async findAll(): Promise<AccessRight[]> {
+        const accessRights = await this.prismaService.accessRight.findMany();
 
-  findOne(id: number) {
-    return `This action returns a #${id} accessRight`;
-  }
+        return accessRights;
+    }
 
-  update(id: number, updateAccessRightDto: UpdateAccessRightDto) {
-    return `This action updates a #${id} accessRight`;
-  }
+    async create(
+        createAccessRightDto: CreateAccessRightDto,
+    ): Promise<AccessRight> {
+        const { name, method, path } = createAccessRightDto;
 
-  remove(id: number) {
-    return `This action removes a #${id} accessRight`;
-  }
+        const accessRightWithSameName = await this.findByName(name);
+
+        if (accessRightWithSameName)
+            throw new BadRequestException(
+                `An access right with name '${name}' has been created`,
+            );
+
+        const accessRightWithSameAction = await this.findByAction(name, method);
+
+        if (accessRightWithSameAction)
+            throw new BadRequestException(
+                `An access right with method '${method}' and path '${path}' has been created`,
+            );
+
+        return await this.prismaService.accessRight.create({
+            data: {
+                name,
+                method,
+                path,
+            },
+        });
+    }
+
+    async findById(id: string) {
+        const accessRight = await this.prismaService.accessRight.findUnique({
+            where: { id },
+        });
+
+        if (!accessRight) throw new NotFoundException('Role not found');
+
+        return accessRight;
+    }
+
+    async findByName(
+        name: string,
+        options?: { expectId?: string },
+    ): Promise<AccessRight> {
+        const accessRight = await this.prismaService.accessRight.findUnique({
+            where: {
+                name,
+                NOT: {
+                    id: options ? options.expectId : undefined,
+                },
+            },
+        });
+
+        return accessRight;
+    }
+
+    async findByAction(
+        method: string,
+        path: string,
+        options?: { expectId?: string },
+    ): Promise<AccessRight> {
+        const accessRight = await this.prismaService.accessRight.findFirst({
+            where: {
+                method: method,
+                path: path,
+                NOT: {
+                    id: options ? options.expectId : undefined,
+                },
+            },
+        });
+
+        return accessRight;
+    }
+
+    async update(id: string, updateAccessRightDto: UpdateAccessRightDto) {
+        const { name, method, path } = updateAccessRightDto;
+        const accessRight = await this.findById(id);
+
+        const accessRightWithSameName = await this.findByName(name, {
+            expectId: id,
+        });
+
+        if (accessRightWithSameName)
+            throw new BadRequestException(
+                `An access right with name '${name}' has been created`,
+            );
+
+        const accessRightWithSameAction = await this.findByAction(
+            method,
+            path,
+            {
+                expectId: id,
+            },
+        );
+
+        if (accessRightWithSameAction)
+            throw new BadRequestException(
+                `An access right with method '${method}' and path '${path}' has been created`,
+            );
+
+        return await this.prismaService.accessRight.update({
+            where: {
+                id: accessRight.id,
+            },
+            data: {
+                name,
+                method,
+                path,
+            },
+        });
+    }
+
+    async remove(id: string) {
+        const accessRight = await this.findById(id);
+
+        return await this.prismaService.accessRight.delete({
+            where: { id: accessRight.id },
+        });
+    }
 }

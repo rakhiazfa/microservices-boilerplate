@@ -1,4 +1,12 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateAccessRightDto } from './create-access-right.dto';
+import { IsNotEmpty } from 'class-validator';
 
-export class UpdateAccessRightDto extends PartialType(CreateAccessRightDto) {}
+export class UpdateAccessRightDto {
+    @IsNotEmpty()
+    name: string;
+
+    @IsNotEmpty()
+    method: string;
+
+    @IsNotEmpty()
+    path: string;
+}
