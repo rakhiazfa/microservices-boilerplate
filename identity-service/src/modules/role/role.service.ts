@@ -63,8 +63,8 @@ export class RoleService {
 
     async update(id: string, updateRoleDto: UpdateRoleDto): Promise<Role> {
         const { name } = updateRoleDto;
-
         const role = await this.findById(id);
+
         const roleWithSameName = await this.findByName(name, {
             expectId: id,
         });
